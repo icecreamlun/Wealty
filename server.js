@@ -62,6 +62,7 @@ async function fetchYahooQuote(symbol) {
   const last = m.regularMarketPrice ?? closes[closes.length - 1];
   const prevDay = closes.length >= 2 ? closes[closes.length - 2] : m.chartPreviousClose;
   const monthChange = first ? ((last - first) / first) * 100 : null;
+  const sparkline = closes.map((v) => Math.round(v * 100) / 100);
   return {
     symbol,
     price: last,
@@ -73,6 +74,7 @@ async function fetchYahooQuote(symbol) {
     fiftyTwoWeekLow: m.fiftyTwoWeekLow,
     longName: m.longName || m.shortName,
     asOf: m.regularMarketTime ? new Date(m.regularMarketTime * 1000).toISOString() : null,
+    sparkline,
   };
 }
 
