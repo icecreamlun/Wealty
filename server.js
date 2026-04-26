@@ -6,8 +6,16 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = process.env.PORT || 3000;
-const MANUS_KEY = process.env.MANUS_API_KEY || '***REMOVED-MANUS-KEY***';
+const MANUS_KEY = process.env.MANUS_API_KEY;
 const MANUS_BASE = 'https://api.manus.im/v1';
+
+if (!MANUS_KEY) {
+  console.error('\n  Missing MANUS_API_KEY environment variable.');
+  console.error('  Get a key at https://manus.im, then run one of:');
+  console.error('    MANUS_API_KEY=sk-... node server.js');
+  console.error('    node --env-file=.env server.js   (after copying .env.example)\n');
+  process.exit(1);
+}
 
 const app = express();
 app.use(cors());

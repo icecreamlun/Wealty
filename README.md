@@ -55,11 +55,17 @@ Then there's a `View raw prompt` toggle. Click it and you see the literal text t
 git clone https://github.com/icecreamlun/Wealty.git
 cd Wealty
 npm install
-node server.js
+
+# 1. get a Manus API key at https://manus.im
+# 2. drop it in .env (gitignored)
+cp .env.example .env
+$EDITOR .env
+
+node --env-file=.env server.js
 # open http://localhost:3000
 ```
 
-Set `MANUS_API_KEY` in your environment to use your own key (a default is included for the demo).
+`MANUS_API_KEY` is **required** — the server refuses to start without it. No fallback key, no shared demo key, nothing baked in. Bring your own.
 
 ## Architecture
 
