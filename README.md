@@ -8,6 +8,10 @@ Live market data is the source of truth. The AI plan has to cite it.
 
 <sub>ETF & equity quotes via Yahoo Finance · U.S. Treasury yields via fiscaldata.treasury.gov · reasoning via [Manus](https://manus.im)</sub>
 
+<br />
+
+![Wealty hero — live ticker tape, gold serif wordmark, ETF table with sparklines](docs/hero.png)
+
 </div>
 
 ---
