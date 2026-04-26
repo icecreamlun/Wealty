@@ -16,42 +16,50 @@ Live market data is the source of truth. The AI plan has to cite it.
 
 ---
 
-## Who this is for
+## The thesis
 
-The senior engineer with $300k–$2M scattered across a checking account, a brokerage, and an employer-stock concentration they've been meaning to diversify for two years. Smart, numerate, time-poor — and structurally allergic to financial advice.
+> Every wealth-tech product targets the same persona — *mass affluent, financially curious, default trusting* — and then spends product energy **overcoming** that persona's hesitations.
+>
+> Wealty targets the opposite: **skeptical, technical, default suspicious.** Engineers who watched FTX, who never trusted a "fiduciary," who can read a 10-K but won't open a brokerage app. There are hundreds of thousands of these people in tech with seven figures sitting in a HYSA — not because they don't know better, but because **no tool ever felt safe to use.**
+>
+> Most products try to overcome that instinct. We designed for it.
 
-They don't pay 1% AUM to be told to buy VTI. They don't trust black-box robo-advisors. They watched FTX and Terra blow up other people's money. Their default is **trust no one, verify everything, leave it in the HYSA**.
+That single bet rewrites every product decision:
 
-There are plenty of tools for people who want to be told what to do. **Wealty is for people who want to verify a plan against the raw numbers themselves before they touch a button.**
+- **Source-of-truth tables aren't a feature. They're a respect signal.** This audience reads numbers, not narratives.
+- **A visible prompt isn't a feature. It's a respect signal.** This audience trusts what they can audit.
+- **Bring-your-own-key isn't a feature. It's a respect signal.** This audience knows hosted credentials are a liability.
+- **One textarea — not a chat — isn't a constraint. It's a respect signal.** This audience can think clearly in writing; chat UIs are designed to make people stop thinking.
 
-## What it does
+Trust, in this product, is not a UX layer painted on top with testimonials and badges. It's a **data-architecture choice**: live tables are the source of truth, the AI is a transformation on top of that data, and every step is inspectable. Trust becomes provable, not promised.
 
-A single page. Three live tables on top — these are the source of truth, not the AI:
+## What it actually does
 
-| Table | Columns | Source |
+One textarea. One prompt. One plan.
+
+The user describes their situation in their own words — *"I have $400k cash, $600k in NVDA RSUs vesting over 3 years, married, want to FIRE at 50, paranoid about real-estate concentration, don't recommend crypto"* — and Wealty:
+
+1. **Snapshots three live tables** (12 ETFs, 10 large-cap stocks, U.S. Treasury yields) and embeds the exact rows into the prompt.
+2. **Sends that prompt to Manus**, with explicit instructions to (a) honor the user's narrative over the structured defaults, (b) cite the live data on every recommendation, (c) only use tickers from the on-screen universe, (d) call out anything in the user's story it picked up — quoted.
+3. **Returns a Markdown plan** with: a Summary, an Allocation table that sums to 100% / total capital, a per-line Rationale citing the data, specific Risks, a Rebalancing rule, a Realism check, and a *"What we picked up from your story"* section quoting the user back to themselves.
+4. **Renders the plan inline next to the source-of-truth tables**, so claim → evidence is one screen.
+5. **Exposes the literal prompt** that was sent. Paste it into Claude or GPT-5, run it yourself, compare. That capability is a feature, not a leak.
+
+| Surface | What it is | Why it's there |
 | --- | --- | --- |
-| ETF universe (12 holdings) | price, 1d %, 1mo %, 52w range | Yahoo Finance |
-| Single-stock universe (10 large caps) | price, 1d %, 1mo %, 52w range | Yahoo Finance |
-| U.S. Treasury yields | avg interest rate by security type | Treasury Fiscal Data API |
-
-Every table links its source underneath. No proprietary scoring. No "Wealty Index." Just numbers and where they came from.
-
-You enter four inputs — **capital · risk (1–5) · target return % · horizon** — and the backend snapshots that exact dataset, embeds it into a structured prompt, and asks Manus to return a Markdown plan with:
-
-- A dollar-denominated allocation table that must sum to 100% / total capital
-- A per-line rationale that **cites the trends and yields shown above**
-- Three concrete risks specific to *this* allocation
-- A rebalancing rule with a trigger
-- A **realism check**: is your target reachable given today's yields?
-
-Then there's a `View raw prompt` toggle. Click it and you see the literal text the AI received. **No hidden context, no system-prompt magic, no upsell.** If a paranoid user wants to paste that prompt into Claude or GPT and compare answers, that's a feature.
+| Live ticker tape | Bloomberg-style auto-scroll across the top | Signals "this is real data, not a mock" before the user reads a single word |
+| Source-of-truth tables | ETFs, stocks, Treasury yields with sparklines | The thing the AI must justify itself against |
+| Compose textarea | One free-form input, not a chat | Forces honest thinking; preserves auditability |
+| Override panel | Capital / risk / return / horizon, hidden by default | Defaults exist; the textarea is primary |
+| AI plan panel | Markdown, full width, with `View raw prompt` toggle | The AI is a guest in the user's screen, not the host |
 
 ## Design principles
 
-1. **Auditable, not authoritative.** The plan is a hypothesis the user grades against the tables next to it. We never say "trust us."
+1. **Auditable, not authoritative.** The plan is a hypothesis the user grades against the tables next to it. We never say *"trust us."*
 2. **Constrained AI.** Manus can only recommend tickers from the on-screen universe. No leverage, no shitcoins, no structured products. The blast radius of an AI hallucination is bounded by the table.
 3. **No fee narrative.** No AUM, no premium tier, no managed accounts. The economics aren't aligned with selling you anything.
-4. **Engineer-coded UX.** Dark mode, monospace numbers, no stock photos, no testimonials. It looks like a dashboard, not a landing page.
+4. **One shot, not a chat.** Money decisions are infrequent. Chat UIs reward shallow, additive prompts; a textarea rewards thinking clearly once.
+5. **Editorial, not enterprise.** Serif wordmark, gold-on-black, monospace numbers. It looks like a private bank's quarterly letter, not a SaaS landing page.
 
 ## Quickstart
 

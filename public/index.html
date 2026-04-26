@@ -185,7 +185,192 @@
     padding: 40px 24px 80px;
   }
   .grid { display: grid; gap: 22px; }
-  @media (min-width: 1000px) { .grid.two { grid-template-columns: 380px 1fr; } }
+  @media (min-width: 1000px) { .grid.two { grid-template-columns: 1fr 1.55fr; } }
+
+  /* === COMPOSE (the protagonist) === */
+  .compose-wrap {
+    max-width: 760px;
+    margin: 0 auto 48px;
+    padding: 0;
+  }
+  .compose-eyebrow {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 14px;
+  }
+  .compose-h {
+    text-align: center;
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.6vw, 42px);
+    font-weight: 400;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .compose-h em { color: var(--gold); font-style: italic; }
+  .compose-sub {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13.5px;
+    margin: 0 auto 22px;
+    max-width: 560px;
+  }
+  .compose-frame {
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 8px;
+    box-shadow: 0 30px 80px -40px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,175,110,0.04) inset;
+    position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .compose-frame:focus-within {
+    border-color: rgba(212,175,110,0.4);
+    box-shadow: 0 30px 80px -40px rgba(0,0,0,0.7), 0 0 0 4px rgba(212,175,110,0.12);
+  }
+  textarea#situation {
+    width: 100%;
+    min-height: 130px;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 16px 18px 8px;
+    resize: vertical;
+  }
+  textarea#situation::placeholder {
+    color: var(--text-faint);
+    font-style: italic;
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .compose-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px 8px 16px;
+    border-top: 1px solid var(--line);
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .compose-hints { display: flex; gap: 6px; flex-wrap: wrap; }
+  .hint {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.015);
+    cursor: pointer;
+    transition: all 0.12s;
+    user-select: none;
+  }
+  .hint:hover { border-color: rgba(212,175,110,0.35); color: #e6cf9a; }
+  .compose-cta {
+    background: linear-gradient(180deg, #d4af6e 0%, #a8854d 100%);
+    color: #18120a;
+    border: 0;
+    padding: 11px 18px;
+    border-radius: 9px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.18) inset, 0 8px 24px -10px rgba(212, 175, 110, 0.55);
+    transition: transform 0.08s, box-shadow 0.18s;
+    white-space: nowrap;
+  }
+  .compose-cta:hover { box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 10px 30px -10px rgba(212, 175, 110, 0.7); }
+  .compose-cta:active { transform: translateY(1px); }
+  .compose-cta:disabled { opacity: 0.5; cursor: progress; }
+
+  .summary-bar {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+  }
+  .summary-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .summary-chip {
+    padding: 6px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .summary-chip b { color: var(--text); font-weight: 600; }
+  .summary-edit {
+    background: none;
+    border: 0;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 4px;
+    border-bottom: 1px dotted var(--line-2);
+  }
+  .summary-edit:hover { color: var(--gold); border-color: var(--gold); }
+
+  details.advanced {
+    margin-top: 14px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0;
+    overflow: hidden;
+  }
+  details.advanced > summary {
+    cursor: pointer;
+    padding: 11px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    list-style: none;
+    user-select: none;
+  }
+  details.advanced > summary::-webkit-details-marker { display: none; }
+  details.advanced > summary::before { content: '▸ '; color: var(--text-faint); margin-right: 6px; transition: transform 0.15s; display: inline-block; }
+  details.advanced[open] > summary::before { transform: rotate(90deg); }
+  details.advanced .advanced-body {
+    padding: 8px 18px 18px;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  @media (min-width: 700px) { details.advanced .advanced-body { grid-template-columns: 1.4fr 1fr 1fr 1fr; } }
+
+  .compose-status {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 14px;
+    letter-spacing: 0.06em;
+    min-height: 14px;
+  }
 
   .panel {
     background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
@@ -494,29 +679,60 @@
 <section class="hero">
   <div class="hero-eyebrow"><span class="live-dot"></span>Live · NYSE / NASDAQ · U.S. Treasury</div>
   <h1 class="wordmark">Wealty</h1>
-  <p class="hero-tag">A wealth tool that respects <em>your skepticism</em><br>instead of trying to overcome it.</p>
-  <p class="hero-sub">Real-time market data is the source of truth. The AI plan has to cite it.</p>
+  <p class="hero-tag">Built for the people every other<br>wealth tool gave up on.</p>
+  <p class="hero-sub">
+    Skeptical. Technical. Default suspicious. The kind who watched FTX, never trusted a "fiduciary," and left
+    seven figures sitting in a HYSA because nothing felt safe to use. We didn't try to overcome that instinct —
+    we designed for it.
+  </p>
   <div class="hero-badges">
-    <span class="badge gold">For skeptical operators</span>
-    <span class="badge"><span class="manus-mark"></span> Powered by <b style="color:#ffae8c;letter-spacing:0.16em">MANUS</b></span>
-    <span class="badge">No fees · No upsell · BYO key</span>
+    <a class="badge"  href="https://manus.im" target="_blank"><span class="manus-mark"></span>Powered by <b style="color:#ffae8c;letter-spacing:0.16em">MANUS</b></a>
+    <span class="badge gold">Source-of-truth first</span>
+    <span class="badge">Inspect every prompt · BYO key</span>
   </div>
 </section>
 
 <!-- MAIN -->
 <div class="wrap">
-  <div class="grid two">
-    <!-- LEFT COLUMN -->
-    <div>
-      <div class="panel">
-        <div class="panel-h">
-          <h2>Configure</h2>
-          <span class="meta">your inputs</span>
-        </div>
 
-        <div class="step-group">
-          <div class="step-num">01 · CAPITAL</div>
-          <label>Investable capital</label>
+  <!-- COMPOSE — the protagonist -->
+  <section class="compose-wrap">
+    <div class="compose-eyebrow">— Step 01 · One prompt, one plan —</div>
+    <h2 class="compose-h">Tell us what's <em>actually</em> going on.</h2>
+    <p class="compose-sub">
+      Not a chat. One shot. The more honest you are about the messy parts — RSU concentration, near-term cash needs,
+      what you'd never invest in — the more your plan reflects <em>your</em> situation, not a template.
+    </p>
+
+    <div class="compose-frame">
+      <textarea id="situation" placeholder='e.g. "I&#39;m 32, $400k cash + $600k in NVDA RSUs vesting over 3 more years. Married, want to FIRE at 50 in Lisbon. Risk-tolerant in stocks, paranoid about real-estate concentration. Don&#39;t recommend crypto."'></textarea>
+      <div class="compose-toolbar">
+        <div class="compose-hints">
+          <span class="hint" data-fill="rsu">+ RSU concentration</span>
+          <span class="hint" data-fill="fire">+ FIRE goal</span>
+          <span class="hint" data-fill="recession">+ Recession worry</span>
+          <span class="hint" data-fill="exclude">+ Exclusions</span>
+        </div>
+        <button class="compose-cta" id="go">Generate plan with Manus →</button>
+      </div>
+    </div>
+
+    <div class="summary-bar">
+      <div class="summary-chips" id="summary-chips">
+        <span class="summary-chip">Capital <b id="sum-capital">$100,000</b></span>
+        <span class="summary-chip">Risk <b id="sum-risk">3 / 5</b></span>
+        <span class="summary-chip">Target <b id="sum-ret">8% / yr</b></span>
+        <span class="summary-chip">Horizon <b id="sum-horizon">10 yrs</b></span>
+        <span class="summary-chip">Currency <b id="sum-ccy">USD</b></span>
+      </div>
+      <button class="summary-edit" type="button" onclick="document.getElementById('advanced').open = !document.getElementById('advanced').open">override ↓</button>
+    </div>
+
+    <details class="advanced" id="advanced">
+      <summary>Override the defaults manually</summary>
+      <div class="advanced-body">
+        <div>
+          <label>Capital</label>
           <div class="row2">
             <input id="capital" type="number" min="100" step="100" value="100000" />
             <select id="currency">
@@ -524,10 +740,8 @@
             </select>
           </div>
         </div>
-
-        <div class="step-group">
-          <div class="step-num">02 · RISK TOLERANCE</div>
-          <label>1 conservative → 5 aggressive</label>
+        <div>
+          <label>Risk (1–5)</label>
           <div class="risk-track" id="risk-track">
             <div class="risk-pill" data-v="1">1</div>
             <div class="risk-pill" data-v="2">2</div>
@@ -535,27 +749,46 @@
             <div class="risk-pill" data-v="4">4</div>
             <div class="risk-pill" data-v="5">5</div>
           </div>
-          <div class="risk-labels"><span>CASH-LIKE</span><span>BALANCED</span><span>EQUITY-HEAVY</span></div>
           <input id="risk" type="hidden" value="3" />
         </div>
-
-        <div class="step-group">
-          <div class="step-num">03 · TARGET RETURN</div>
-          <label>Annual return goal (%)</label>
+        <div>
+          <label>Target return %</label>
           <input id="ret" type="number" min="0" max="40" step="0.5" value="8" />
         </div>
-
-        <div class="step-group">
-          <div class="step-num">04 · HORIZON</div>
-          <label>Years to invest</label>
+        <div>
+          <label>Horizon (yrs)</label>
           <input id="horizon" type="number" min="1" max="40" step="1" value="10" />
         </div>
-
-        <button class="cta" id="go">Generate plan with Manus →</button>
-        <div id="status" class="status"></div>
       </div>
+    </details>
 
-      <div class="panel" style="margin-top:22px">
+    <div class="compose-status" id="status"></div>
+  </section>
+
+  <!-- AI PLAN (full width, becomes the protagonist after submit) -->
+  <section class="panel ai-panel" id="planSection" style="margin-bottom:36px">
+    <div class="ai-head">
+      <h2>The <em>plan.</em></h2>
+      <a class="powered" href="https://manus.im" target="_blank"><span class="manus-mark"></span>Powered by <b>MANUS</b></a>
+    </div>
+    <div id="plan" class="plan-md empty">
+      <span class="arrow">↑</span>
+      Write a sentence above. The plan will cite every claim against the live tables below.
+    </div>
+    <details class="raw" id="rawWrap" style="display:none">
+      <summary>View the exact prompt sent to Manus</summary>
+      <pre id="rawPrompt"></pre>
+    </details>
+    <div class="ai-foot" id="aiFoot" style="display:none">
+      <span id="aiFootMeta"></span>
+      <a href="#" id="aiFootLink" target="_blank">View task →</a>
+    </div>
+  </section>
+
+  <!-- DATA TABLES — source of truth -->
+  <div class="grid two">
+    <div>
+      <div class="panel">
         <div class="panel-h">
           <h2>Treasury yields</h2>
           <span class="meta" id="rates-meta">— · —</span>
@@ -563,8 +796,6 @@
         <div id="rates"><div class="empty-row">Loading…</div></div>
       </div>
     </div>
-
-    <!-- RIGHT COLUMN -->
     <div>
       <div class="panel">
         <div class="panel-h">
@@ -574,7 +805,6 @@
         <div class="scroll" id="etfs"><div class="empty-row">Loading…</div></div>
         <div class="source">Source · <a href="https://finance.yahoo.com" target="_blank">Yahoo Finance</a> · query1.finance.yahoo.com</div>
       </div>
-
       <div class="panel" style="margin-top:22px">
         <div class="panel-h">
           <h2><em>Single equities</em></h2>
@@ -582,25 +812,6 @@
         </div>
         <div class="scroll" id="stocks"><div class="empty-row">Loading…</div></div>
         <div class="source">Source · <a href="https://finance.yahoo.com" target="_blank">Yahoo Finance</a></div>
-      </div>
-
-      <div class="panel ai-panel" style="margin-top:22px">
-        <div class="ai-head">
-          <h2>The <em>plan.</em></h2>
-          <a class="powered" href="https://manus.im" target="_blank"><span class="manus-mark"></span>Powered by <b>MANUS</b></a>
-        </div>
-        <div id="plan" class="plan-md empty">
-          <span class="arrow">↑</span>
-          Fill the form on the left.<br>The plan will cite every claim against the tables above.
-        </div>
-        <details class="raw" id="rawWrap" style="display:none">
-          <summary>View the exact prompt sent to Manus</summary>
-          <pre id="rawPrompt"></pre>
-        </details>
-        <div class="ai-foot" id="aiFoot" style="display:none">
-          <span id="aiFootMeta"></span>
-          <a href="#" id="aiFootLink" target="_blank">View task →</a>
-        </div>
       </div>
     </div>
   </div>
@@ -763,6 +974,48 @@ document.getElementById('risk-track').addEventListener('click', (e) => {
   document.querySelectorAll('.risk-pill').forEach(p => p.classList.remove('active'));
   t.classList.add('active');
   document.getElementById('risk').value = t.dataset.v;
+  refreshSummary();
+});
+
+// Live summary chip refresh
+function fmtMoney(v, ccy) {
+  const sym = { USD:'$', EUR:'€', CNY:'¥', GBP:'£', JPY:'¥' }[ccy] || '$';
+  return sym + Number(v).toLocaleString('en-US');
+}
+function refreshSummary() {
+  const cap = document.getElementById('capital').value;
+  const ccy = document.getElementById('currency').value;
+  const risk = document.getElementById('risk').value;
+  const ret = document.getElementById('ret').value;
+  const hz = document.getElementById('horizon').value;
+  document.getElementById('sum-capital').textContent = fmtMoney(cap, ccy);
+  document.getElementById('sum-risk').textContent = `${risk} / 5`;
+  document.getElementById('sum-ret').textContent = `${ret}% / yr`;
+  document.getElementById('sum-horizon').textContent = `${hz} yrs`;
+  document.getElementById('sum-ccy').textContent = ccy;
+}
+['capital','currency','ret','horizon'].forEach(id => {
+  document.getElementById(id).addEventListener('input', refreshSummary);
+  document.getElementById(id).addEventListener('change', refreshSummary);
+});
+refreshSummary();
+
+// Hint chips append text into textarea
+const HINT_TEXT = {
+  rsu: "I have a meaningful chunk of my net worth in employer RSUs that I'm afraid to sell.",
+  fire: "I want to retire early — coast on dividends + treasuries by my mid-50s.",
+  recession: "I'm worried about a recession in the next 12-24 months and want to be defensive.",
+  exclude: "Don't recommend crypto, individual REITs, or anything with leverage.",
+};
+document.querySelectorAll('.hint').forEach(h => {
+  h.addEventListener('click', () => {
+    const ta = document.getElementById('situation');
+    const add = HINT_TEXT[h.dataset.fill] || '';
+    if (!add) return;
+    const cur = ta.value.trim();
+    ta.value = cur ? cur + ' ' + add : add;
+    ta.focus();
+  });
 });
 
 document.getElementById('go').addEventListener('click', async () => {
@@ -786,8 +1039,13 @@ document.getElementById('go').addEventListener('click', async () => {
     <div class="shimmer" style="height:14px;width:90%;margin-bottom:10px"></div>
     <div class="shimmer" style="height:14px;width:75%;margin-bottom:18px"></div>
     <div class="shimmer" style="height:140px;width:100%;border-radius:8px"></div></div>`;
+
+  // Smooth-scroll the plan into view so the user sees the loading state immediately
+  document.getElementById('planSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
   try {
     const body = {
+      situation: document.getElementById('situation').value || '',
       capital: Number(document.getElementById('capital').value),
       currency: document.getElementById('currency').value,
       risk: Number(document.getElementById('risk').value),

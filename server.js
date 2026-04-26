@@ -128,7 +128,7 @@ app.get('/api/market', async (_req, res) => {
   }
 });
 
-function buildPrompt({ risk, capital, currency, expectedReturn, horizonYears }, market) {
+function buildPrompt({ risk, capital, currency, expectedReturn, horizonYears, situation }, market) {
   const fmtPct = (x) => (x == null ? 'n/a' : `${x.toFixed(2)}%`);
   const etfTable = market.etfs
     .filter((e) => e.ok)
@@ -142,14 +142,28 @@ function buildPrompt({ risk, capital, currency, expectedReturn, horizonYears }, 
     .map((r) => `${r.security} (${r.type}) | ${r.ratePct.toFixed(3)}%`)
     .join('\n');
 
-  return `You are a portfolio strategist. Build an actionable allocation plan for the user.
+  const situationBlock = situation && situation.trim().length > 0 ? `
 
-USER PROFILE
+USER'S SITUATION (in their own words):
+"""
+${situation.trim()}
+"""
+
+This narrative is the primary signal. The structured profile above is a default — if the narrative contradicts or refines it (e.g. a different effective risk appetite, employer-stock concentration, dependents, near-term cash needs, ethical exclusions), follow the narrative and explicitly call out the override.
+` : '';
+
+  const addressClause = situation && situation.trim().length > 0
+    ? `\n7. **What we picked up from your story** — short bullet list of the specific phrases / facts / worries from the user's narrative, and one sentence each on how the allocation addresses it. Quote them.`
+    : '';
+
+  return `You are a portfolio strategist writing for a skeptical, technically literate operator. They will audit every claim against the data tables below. Be specific. No marketing language.
+
+STRUCTURED PROFILE
 - Investable capital: ${capital} ${currency}
 - Risk tolerance: ${risk} (1=very conservative, 5=very aggressive)
 - Target annual return: ${expectedReturn}%
 - Horizon: ${horizonYears} years
-
+${situationBlock}
 LIVE MARKET DATA (as of ${market.asOf}) — use ONLY these instruments and rates:
 
 ETF universe:
@@ -164,18 +178,19 @@ U.S. Treasury yields (avg interest rate, ${market.treasury.asOf}):
 ${rateTable}
 
 DELIVERABLES — return clean Markdown with these sections in order:
-1. **Summary** — 2-3 sentences calibrating risk vs target.
+1. **Summary** — 2-3 sentences calibrating risk vs target. If the user's narrative changed the effective risk/horizon/capital, say so here.
 2. **Allocation Table** — a Markdown table with columns: Asset Class | Ticker | % | $ Amount. Percentages must total 100%. $ amounts must total ${capital} ${currency}.
-3. **Rationale** — bullet list, one bullet per holding, citing the data above (e.g. its 1mo trend or yield).
-4. **Risks** — 3 bullets specific to this allocation.
+3. **Rationale** — bullet list, one bullet per holding. Each bullet must cite either a number from the tables above (its 1mo trend, yield, 52w range) OR a specific phrase from the user's narrative.
+4. **Risks** — 3 bullets specific to this allocation, not generic disclaimers.
 5. **Rebalancing** — one paragraph: cadence + triggers.
-6. **Realism check** — does the target return match the risk profile given current yields? Be honest.
+6. **Realism check** — does the target return match the risk profile given current yields? Be honest. If it's a stretch, say what target would actually be reachable.${addressClause}
 
 Constraints:
 - Only use tickers from the lists above.
 - Risk 1-2: tilt to bonds + cash-like (SHY, BND, AGG). Risk 4-5: tilt to equities (SPY, QQQ, VTI) and 1-2 single stocks.
-- Do not recommend leverage, options, or instruments not in the lists.
-- Keep total response under 700 words.`;
+- Do not recommend leverage, options, crypto, real estate, or anything not in the lists.
+- Keep total response under 800 words.
+- Plain language only. No "We are pleased to recommend." No marketing voice.`;
 }
 
 async function callManus(prompt) {
@@ -208,13 +223,13 @@ async function callManus(prompt) {
 
 app.post('/api/plan', async (req, res) => {
   try {
-    const { risk, capital, currency = 'USD', expectedReturn, horizonYears = 10 } = req.body || {};
+    const { risk, capital, currency = 'USD', expectedReturn, horizonYears = 10, situation = '' } = req.body || {};
     if (!risk || !capital || !expectedReturn) {
       return res.status(400).json({ error: 'risk, capital, expectedReturn required' });
     }
     const marketResp = await fetch(`http://localhost:${PORT}/api/market`);
     const market = await marketResp.json();
-    const prompt = buildPrompt({ risk, capital, currency, expectedReturn, horizonYears }, market);
+    const prompt = buildPrompt({ risk, capital, currency, expectedReturn, horizonYears, situation }, market);
     const result = await callManus(prompt);
     res.json({ ...result, prompt, market });
   } catch (e) {
