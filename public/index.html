@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Allocator — Live market data + AI plan</title>
+<style>
+  :root {
+    --bg: #0b0d10;
+    --panel: #14181d;
+    --panel2: #1b2128;
+    --line: #232a33;
+    --text: #e7ecf3;
+    --muted: #8a96a6;
+    --green: #34d399;
+    --red: #f87171;
+    --accent: #6ea8ff;
+    --accent2: #a78bfa;
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--text); font: 14px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; margin: 0; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 22px 80px; }
+  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin-bottom: 22px; font-size: 13px; }
+  .grid { display: grid; gap: 18px; }
+  @media (min-width: 900px) { .grid.two { grid-template-columns: 360px 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 6px; }
+  input, select { width: 100%; background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 13px; }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  button { background: linear-gradient(180deg, #4f7fea, #3a64c9); color: white; border: 0; padding: 10px 14px; border-radius: 7px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 14px; font-size: 13px; }
+  button:disabled { opacity: 0.55; cursor: not-allowed; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+  .pos { color: var(--green); }
+  .neg { color: var(--red); }
+  .pill { display: inline-block; font-size: 10.5px; padding: 2px 7px; border-radius: 999px; background: var(--panel2); color: var(--muted); border: 1px solid var(--line); }
+  .source { font-size: 11.5px; color: var(--muted); margin-top: 8px; }
+  .source a { color: var(--accent); text-decoration: none; }
+  .scroll { overflow-x: auto; }
+  .plan-md { background: var(--panel2); padding: 18px; border-radius: 8px; line-height: 1.6; font-size: 13.5px; }
+  .plan-md h1, .plan-md h2, .plan-md h3 { margin-top: 18px; margin-bottom: 8px; }
+  .plan-md table { margin: 10px 0; }
+  .plan-md th, .plan-md td { border-bottom: 1px solid var(--line); }
+  .plan-md code { background: #0f1216; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .plan-md ul { margin: 6px 0 6px 18px; padding: 0; }
+  .empty { color: var(--muted); font-style: italic; padding: 14px 0; }
+  .status { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .tag-bull { color: var(--green); }
+  .tag-bear { color: var(--red); }
+  .legend { display: flex; gap: 14px; font-size: 11.5px; color: var(--muted); margin-bottom: 10px; }
+  .err { color: var(--red); font-size: 12px; }
+  details { background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; margin-top: 10px; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+  pre { white-space: pre-wrap; word-break: break-word; font-size: 11.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Personal Allocator</h1>
+  <div class="sub">Live ETF / equity quotes + U.S. Treasury yields. AI plan via <span class="pill">Manus</span>. The tables are the source of truth — the plan must justify itself against them.</div>
+
+  <div class="grid two">
+    <div>
+      <div class="panel">
+        <h2>Your inputs</h2>
+        <label>Investable capital</label>
+        <div class="row">
+          <input id="capital" type="number" min="100" step="100" value="100000" />
+          <select id="currency"><option>USD</option><option>EUR</option><option>CNY</option><option>GBP</option><option>JPY</option></select>
+        </div>
+        <label>Risk tolerance (1 = conservative, 5 = aggressive)</label>
+        <input id="risk" type="number" min="1" max="5" step="1" value="3" />
+        <label>Target annual return (%)</label>
+        <input id="ret" type="number" min="0" max="40" step="0.5" value="8" />
+        <label>Horizon (years)</label>
+        <input id="horizon" type="number" min="1" max="40" step="1" value="10" />
+        <button id="go">Generate plan</button>
+        <div id="status" class="status"></div>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <h2>U.S. Treasury yields</h2>
+        <div id="rates"><div class="empty">Loading…</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h2>ETF universe — live quotes</h2>
+        <div class="legend"><span>1d / 1mo % vs prior close</span></div>
+        <div class="scroll" id="etfs"><div class="empty">Loading…</div></div>
+        <div class="source">Source: Yahoo Finance · query1.finance.yahoo.com</div>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <h2>Stock universe — live quotes</h2>
+        <div class="scroll" id="stocks"><div class="empty">Loading…</div></div>
+        <div class="source">Source: Yahoo Finance · query1.finance.yahoo.com</div>
+      </div>
+      <div class="panel" style="margin-top:18px">
+        <h2>AI plan <span class="pill">Manus</span></h2>
+        <div id="plan" class="plan-md"><div class="empty">Fill the form on the left and click Generate plan.</div></div>
+        <details id="rawWrap" style="display:none"><summary>View raw prompt sent to Manus</summary><pre id="rawPrompt"></pre></details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function pctCell(v) {
+  if (v == null || isNaN(v)) return '<td class="num">—</td>';
+  const cls = v >= 0 ? 'pos' : 'neg';
+  const sign = v >= 0 ? '+' : '';
+  return `<td class="num ${cls}">${sign}${v.toFixed(2)}%</td>`;
+}
+function money(v) { if (v == null) return '—'; return '$' + Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+function renderETFs(rows) {
+  if (!rows.length) return '<div class="empty">No data.</div>';
+  return `<table>
+    <thead><tr><th>Ticker</th><th>Name</th><th>Bucket</th><th class="num">Price</th><th class="num">1d</th><th class="num">1mo</th><th class="num">52w Range</th></tr></thead>
+    <tbody>${rows.map(r => r.ok ? `
+      <tr>
+        <td><b>${r.sym}</b></td>
+        <td>${r.name}</td>
+        <td><span class="pill">${r.bucket}</span></td>
+        <td class="num">${money(r.price)}</td>
+        ${pctCell(r.dayChangePct)}
+        ${pctCell(r.monthChangePct)}
+        <td class="num" style="color:var(--muted)">${money(r.fiftyTwoWeekLow)} – ${money(r.fiftyTwoWeekHigh)}</td>
+      </tr>` : `<tr><td><b>${r.sym}</b></td><td colspan="6" class="err">${r.error}</td></tr>`).join('')}
+    </tbody></table>`;
+}
+function renderStocks(rows) {
+  return `<table>
+    <thead><tr><th>Ticker</th><th>Name</th><th class="num">Price</th><th class="num">1d</th><th class="num">1mo</th><th class="num">52w Range</th></tr></thead>
+    <tbody>${rows.map(r => r.ok ? `
+      <tr>
+        <td><b>${r.sym}</b></td>
+        <td>${r.name}</td>
+        <td class="num">${money(r.price)}</td>
+        ${pctCell(r.dayChangePct)}
+        ${pctCell(r.monthChangePct)}
+        <td class="num" style="color:var(--muted)">${money(r.fiftyTwoWeekLow)} – ${money(r.fiftyTwoWeekHigh)}</td>
+      </tr>` : `<tr><td><b>${r.sym}</b></td><td colspan="5" class="err">${r.error}</td></tr>`).join('')}
+    </tbody></table>`;
+}
+function renderRates(t) {
+  if (!t || !t.rows || !t.rows.length) return '<div class="empty">Unavailable.</div>';
+  return `<table>
+    <thead><tr><th>Security</th><th>Type</th><th class="num">Avg Rate</th></tr></thead>
+    <tbody>${t.rows.map(r => `
+      <tr><td>${r.security}</td><td><span class="pill">${r.type}</span></td><td class="num">${r.ratePct.toFixed(3)}%</td></tr>
+    `).join('')}</tbody>
+  </table>
+  <div class="source">As of ${t.asOf || 'n/a'} · <a href="${t.sourceUrl || '#'}" target="_blank">${t.source || 'fiscaldata.treasury.gov'}</a></div>`;
+}
+
+// Tiny markdown renderer (headings, bold, italic, code, lists, tables, paragraphs)
+function escapeHtml(s) { return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function md(src) {
+  const lines = src.split(/\r?\n/);
+  let out = '', i = 0;
+  while (i < lines.length) {
+    const l = lines[i];
+    // table
+    if (/^\s*\|.*\|\s*$/.test(l) && /^\s*\|?\s*-{3,}/.test(lines[i+1] || '')) {
+      const header = l.trim().replace(/^\||\|$/g,'').split('|').map(s=>s.trim());
+      i += 2;
+      const body = [];
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+        body.push(lines[i].trim().replace(/^\||\|$/g,'').split('|').map(s=>s.trim()));
+        i++;
+      }
+      out += '<table><thead><tr>' + header.map(h=>`<th>${inline(h)}</th>`).join('') + '</tr></thead><tbody>' +
+        body.map(r=>'<tr>'+r.map(c=>`<td>${inline(c)}</td>`).join('')+'</tr>').join('') + '</tbody></table>';
+      continue;
+    }
+    if (/^### /.test(l)) { out += `<h3>${inline(l.replace(/^### /,''))}</h3>`; i++; continue; }
+    if (/^## /.test(l))  { out += `<h2 style="font-size:15px;text-transform:none;letter-spacing:0;color:var(--text);margin-top:18px">${inline(l.replace(/^## /,''))}</h2>`; i++; continue; }
+    if (/^# /.test(l))   { out += `<h2 style="font-size:17px;text-transform:none;letter-spacing:0;color:var(--text)">${inline(l.replace(/^# /,''))}</h2>`; i++; continue; }
+    if (/^\s*[-*]\s+/.test(l)) {
+      out += '<ul>';
+      while (i < lines.length && /^\s*[-*]\s+/.test(lines[i])) {
+        out += `<li>${inline(lines[i].replace(/^\s*[-*]\s+/,''))}</li>`;
+        i++;
+      }
+      out += '</ul>';
+      continue;
+    }
+    if (l.trim() === '') { out += ''; i++; continue; }
+    // paragraph
+    let para = l;
+    i++;
+    while (i < lines.length && lines[i].trim() !== '' && !/^(#|\s*[-*]\s|\s*\|)/.test(lines[i])) { para += ' ' + lines[i]; i++; }
+    out += `<p>${inline(para)}</p>`;
+  }
+  return out;
+}
+function inline(s) {
+  return escapeHtml(s)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+}
+
+let lastMarket = null;
+async function loadMarket() {
+  const r = await fetch('/api/market');
+  const j = await r.json();
+  lastMarket = j;
+  document.getElementById('etfs').innerHTML = renderETFs(j.etfs);
+  document.getElementById('stocks').innerHTML = renderStocks(j.stocks);
+  document.getElementById('rates').innerHTML = renderRates(j.treasury);
+}
+loadMarket();
+
+document.getElementById('go').addEventListener('click', async () => {
+  const btn = document.getElementById('go');
+  const status = document.getElementById('status');
+  const planEl = document.getElementById('plan');
+  btn.disabled = true;
+  status.textContent = 'Submitting to Manus… (this typically takes 30–90s)';
+  planEl.innerHTML = '<div class="empty">Manus is working… polling every 2.5s.</div>';
+  try {
+    const body = {
+      capital: Number(document.getElementById('capital').value),
+      currency: document.getElementById('currency').value,
+      risk: Number(document.getElementById('risk').value),
+      expectedReturn: Number(document.getElementById('ret').value),
+      horizonYears: Number(document.getElementById('horizon').value),
+    };
+    const r = await fetch('/api/plan', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const j = await r.json();
+    if (j.error) throw new Error(j.error);
+    if (!j.text) {
+      planEl.innerHTML = `<div class="err">No text returned. Status: ${j.status}. <a href="${j.task_url}" target="_blank">Open task</a></div>`;
+    } else {
+      planEl.innerHTML = md(j.text) + `<div class="source" style="margin-top:14px">Manus task: <a href="${j.task_url}" target="_blank">${j.task_id}</a> · status: ${j.status}</div>`;
+    }
+    document.getElementById('rawPrompt').textContent = j.prompt || '';
+    document.getElementById('rawWrap').style.display = '';
+    status.textContent = `Done. Status: ${j.status}.`;
+  } catch (e) {
+    planEl.innerHTML = `<div class="err">${e.message}</div>`;
+    status.textContent = '';
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
